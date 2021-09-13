@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
+	"strconv"
 	"fmt"
 	"net/http"
+	"github.com/JamesPEarly/loggly"
 )
 
 type Network struct {
@@ -21,6 +22,7 @@ type Station struct {
     FreeBikes   int `json:"free_bikes"`
     Name    string    `json:"name"`
     Extra Extra `json:"extra"`
+	Id string `json:"id"`
 }
 
 type Extra struct {
@@ -29,26 +31,37 @@ type Extra struct {
 }
 
 func main() {
+
+	// Tag + client init for Loggly
+	var tag string = "citybikes-482"
+	client := loggly.New(tag)
+
+	// Call Citybikes API
 	resp, err := http.Get("http://api.citybik.es/v2/networks/citi-bike-nyc")
+
 	if err != nil {
-		log.Fatalln(err)
+		client.EchoSend("error", "Failed with error: " + err.Error())
 	}
 
 	// Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		client.EchoSend("error", "Failed with error: " + err.Error())
 	}
 
-
+	// Parse the JSON and display some info to the terminal
 	var network Network
-
 	json.Unmarshal(body, &network)
+	var stations = network.Stations
 
-	for i := 0; i < len(network.Stations.Stations); i++ {
-		fmt.Println("Station Name: ", network.Stations.Stations[i].Name)
-		fmt.Println("Empty Slots: ", network.Stations.Stations[i].EmptySlots)
-		fmt.Println("Free Bikes: ", network.Stations.Stations[i].FreeBikes)
+	for i := 0; i < len(stations.Stations); i++ {
+		fmt.Println("Station Name: ", stations.Stations[i].Name)
+		fmt.Println("Empty Slots: ", stations.Stations[i].EmptySlots)
+		fmt.Println("Free Bikes: ", stations.Stations[i].FreeBikes)
 		fmt.Println("-------------------")
 	}
+
+	var respSize string = strconv.Itoa((len(stations.Stations)))
+
+	client.EchoSend("info", "Successful data collection of " + respSize + " stations")
 }
