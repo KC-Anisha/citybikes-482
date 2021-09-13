@@ -63,5 +63,9 @@ func main() {
 
 	var respSize string = strconv.Itoa((len(stations.Stations)))
 
-	client.EchoSend("info", "Successful data collection of " + respSize + " stations")
+	// Send success message to loggly
+	logErr := client.EchoSend("info", "Successful data collection of " + respSize + " stations")
+	if (logErr != nil) {
+		fmt.Println("err: ", logErr)
+	}
 }
