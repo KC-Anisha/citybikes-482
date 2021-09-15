@@ -49,19 +49,15 @@ func main() {
 		client.EchoSend("error", "Failed with error: " + err.Error())
 	}
 
+
 	// Parse the JSON and display some info to the terminal
 	var network Network
 	json.Unmarshal(body, &network)
-	var stations = network.Stations
 
-	for i := 0; i < len(stations.Stations); i++ {
-		fmt.Println("Station Name: ", stations.Stations[i].Name)
-		fmt.Println("Empty Slots: ", stations.Stations[i].EmptySlots)
-		fmt.Println("Free Bikes: ", stations.Stations[i].FreeBikes)
-		fmt.Println("-------------------")
-	}
+	formattedData, _ := json.MarshalIndent(network, "", "    ")
+	fmt.Println(string(formattedData))
 
-
+	
 	// Send success message to loggly with response size
 	var respSize string = strconv.Itoa(len(body))
 	logErr := client.EchoSend("info", "Successful data collection of size: " + respSize)
