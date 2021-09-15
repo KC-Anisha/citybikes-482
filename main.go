@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"fmt"
 	"net/http"
-	"github.com/JamesPEarly/loggly"
+	loggly "github.com/JamesPEarly/loggly"
 )
 
 type Network struct {
@@ -61,10 +61,10 @@ func main() {
 		fmt.Println("-------------------")
 	}
 
-	var respSize string = strconv.Itoa((len(stations.Stations)))
 
-	// Send success message to loggly
-	logErr := client.EchoSend("info", "Successful data collection of " + respSize + " stations")
+	// Send success message to loggly with response size
+	var respSize string = strconv.Itoa(len(body))
+	logErr := client.EchoSend("info", "Successful data collection of size: " + respSize)
 	if (logErr != nil) {
 		fmt.Println("err: ", logErr)
 	}
