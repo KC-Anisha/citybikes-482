@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"fmt"
 	"net/http"
+	"time"
 	loggly "github.com/JamesPEarly/loggly"
 )
 
@@ -30,8 +31,8 @@ type Extra struct {
     Returning  int `json:"returning"`
 }
 
-func main() {
 
+func pollData() {
 	// Tag + client init for Loggly
 	var tag string = "citybikes-482"
 	client := loggly.New(tag)
@@ -64,4 +65,11 @@ func main() {
 	if (logErr != nil) {
 		fmt.Println("err: ", logErr)
 	}
+}
+
+
+func main() {
+	for range time.Tick(time.Minute * 30) {
+        pollData()
+    }
 }
