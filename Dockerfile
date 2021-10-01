@@ -18,6 +18,8 @@ RUN go mod download
 
 COPY *.go ./
 
+ENV LOGGLY_TOKEN=3978ab6c-18d0-4709-8d65-38a8b73f88a3
+
 RUN go build -o /482
 
 # RUN go install github.com/KC-Anisha/citybikes-482
