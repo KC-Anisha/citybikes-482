@@ -1,29 +1,35 @@
-FROM golang:1.17-alpine
+# Start the Go app build
+FROM golang:latest AS build
 
-WORKDIR $GOPATH/src/github.com/KC-Anisha/citybikes-482
+# Copy source
+WORKDIR /app
+COPY . .
 
-# RUN apk update && apk add git
+# Get required modules (assumes packages have been added to ./vendor)
+# RUN go mod download
+RUN go mod tidy
 
-# RUN git config --global url."https://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:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+# Build a statically-linked Go binary for Linux
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o main .
 
-# RUN git clone https://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:x-oauth-basic@github.com/KC-Anisha/citybikes-482.git
+# New build phase -- create binary-only image
+FROM alpine:latest
 
-# ADD . /go/src/github.com/KC-Anisha/citybikes-482
+# Add support for HTTPS
+RUN apk update && \
+    apk upgrade && \
+    apk add ca-certificates
 
-COPY go.mod ./
-COPY go.sum ./
-RUN go mod download
+WORKDIR /
 
-# RUN go mod tidy
+# Copy files from previous build container
+COPY --from=build /app/main ./
 
-COPY *.go ./
-
+# Add environment variables
 ENV LOGGLY_TOKEN=3978ab6c-18d0-4709-8d65-38a8b73f88a3
 
-RUN go build -o /482
+# Check results
+RUN env && pwd && find .
 
-# RUN go install github.com/KC-Anisha/citybikes-482
-
-EXPOSE 8080
-
-CMD [ "/482" ]
+# Start the application
+CMD ["./main"]

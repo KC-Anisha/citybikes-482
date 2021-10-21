@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
-	loggly "github.com/JamesPEarly/loggly"
 	"time"
-	"log"
+
+	loggly "github.com/JamesPEarly/loggly"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -17,8 +18,8 @@ import (
 )
 
 type Item struct {
-	Time    string
-	Id string
+	Time     string
+	Id       string
 	Stations []Station
 }
 
@@ -52,13 +53,13 @@ func pollData() {
 	resp, err := http.Get("http://api.citybik.es/v2/networks/citi-bike-nyc")
 
 	if err != nil {
-		client.EchoSend("error", "Failed with error: " + err.Error())
+		client.EchoSend("error", "Failed with error: "+err.Error())
 	}
 
 	// Read the response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		client.EchoSend("error", "Failed with error: " + err.Error())
+		client.EchoSend("error", "Failed with error: "+err.Error())
 	}
 
 	// Parse the JSON and display some info to the terminal
@@ -69,17 +70,18 @@ func pollData() {
 
 	// Send success message to loggly with response size
 	var respSize string = strconv.Itoa(len(body))
-	logErr := client.EchoSend("info", "Successful data collection of size: " + respSize)
-	if (logErr != nil) {
+	logErr := client.EchoSend("info", "Successful data collection of size: "+respSize)
+	if logErr != nil {
 		fmt.Println("err: ", logErr)
 	}
 
-	// Initialize a session that the SDK will use to load
-	// credentials from the shared credentials file ~/.aws/credentials
-	// and region from the shared configuration file ~/.aws/config.
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	// Initialize a session 
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-1")},
+	)
+	if err != nil {
+		log.Fatalf("Got error initializing AWS: %s", err)
+	}
 
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
@@ -113,7 +115,7 @@ func pollData() {
 }
 
 func main() {
-	// for range time.Tick(time.Minute * 30) {
-	pollData()
-	// }
+	for range time.Tick(time.Minute * 30) {
+		pollData()
+	}
 }
