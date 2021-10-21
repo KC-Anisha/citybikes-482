@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
 	loggly "github.com/JamesPEarly/loggly"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
