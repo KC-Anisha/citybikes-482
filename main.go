@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
 	loggly "github.com/JamesPEarly/loggly"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -74,7 +75,7 @@ func pollData() {
 		fmt.Println("err: ", logErr)
 	}
 
-	// Initialize a session 
+	// Initialize a session
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1")},
 	)
@@ -98,7 +99,7 @@ func pollData() {
 	}
 
 	// Create item in table citybikes
-	tableName := "citybikes"
+	tableName := "akc-citybikes"
 
 	input := &dynamodb.PutItemInput{
 		Item:      av,
@@ -114,7 +115,7 @@ func pollData() {
 }
 
 func main() {
-	for range time.Tick(time.Minute * 30) {
+	for range time.Tick(time.Minute * 60) {
 		pollData()
 	}
 }
