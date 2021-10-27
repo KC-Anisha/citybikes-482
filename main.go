@@ -50,7 +50,7 @@ func pollData() {
 	client := loggly.New(tag)
 
 	// Call Citybikes API
-	resp, err := http.Get("http://api.citybik.es/v2/networks/citi-bike-nyc")
+	resp, err := http.Get("https://api.citybik.es/v2/networks/austin")
 
 	if err != nil {
 		client.EchoSend("error", "Failed with error: "+err.Error())
@@ -115,7 +115,7 @@ func pollData() {
 }
 
 func main() {
-	for range time.Tick(time.Hour * 4) {
+	for range time.Tick(time.Hour * 3) {
 		pollData()
 	}
 }
