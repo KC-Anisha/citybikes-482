@@ -1,5 +1,6 @@
 # Start the Go app build
-FROM golang:latest AS build
+FROM 817615305328.dkr.ecr.us-east-1.amazonaws.com/golang:latest AS build
+# FROM golang:latest AS build
 
 # Copy source
 WORKDIR /app
@@ -13,7 +14,8 @@ RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o main .
 
 # New build phase -- create binary-only image
-FROM alpine:latest
+FROM 817615305328.dkr.ecr.us-east-1.amazonaws.com/alpine:latest
+# FROM alpine:latest
 
 # Add support for HTTPS
 RUN apk update && \
